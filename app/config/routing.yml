@@ -1,8 +1,7 @@
-acme_blog:
-    resource: "@AcmeBlogBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
 app:
     resource: @AppBundle/Controller/
     type:     annotation
+acme_blog:
+    type: rest
+    prefix: /api
+    resource: "@AcmeBlogBundle/Resources/config/routes.yml"
