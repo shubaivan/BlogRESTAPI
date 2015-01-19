@@ -2,6 +2,7 @@
 
 namespace Acme\BlogBundle\Entity;
 
+use Acme\BlogBundle\Model\PageInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table()
  * @ORM\Entity
  */
-class Page
+class Page implements PageInterface
 {
     /**
      * @var integer
