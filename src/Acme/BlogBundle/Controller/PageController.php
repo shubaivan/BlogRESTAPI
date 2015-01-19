@@ -1,27 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ivan
- * Date: 14.01.15
- * Time: 21:19
- */
 namespace Acme\BlogBundle\Controller;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\Util\Codes;
 use FOS\RestBundle\Controller\Annotations;
-use FOS\RestBundle\Request\ParamFetcherInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Acme\BlogBundle\Exception\InvalidFormException;
+use Acme\BlogBundle\Form\PageType;
 use Acme\BlogBundle\Model\PageInterface;
-
-
 class PageController extends FOSRestController
 {
-
     /**
-     * Get single page,
+     * Get single Page,
      *
      * @ApiDoc(
      * resource = true,
@@ -35,7 +26,6 @@ class PageController extends FOSRestController
      *
      * @Annotations\View(templateVar="page")
      *
-     * @param Request $request the request object
      * @param int $id the page id
      *
      * @return array
@@ -48,7 +38,60 @@ class PageController extends FOSRestController
         return $page;
     }
     /**
-     * Fetch the Cart.
+     * Presents the form to use to create a new page.
+     *
+     * @ApiDoc(
+     * resource = true,
+     * statusCodes = {
+     * 200 = "Returned when successful"
+     * }
+     * )
+     *
+     * @Annotations\View()
+     *
+     * @return FormTypeInterface
+     */
+    public function newPageAction()
+    {
+        return $this->createForm(new PageType());
+    }
+    /**
+     * Create a Page from the submitted data.
+     *
+     * @ApiDoc(
+     * resource = true,
+     * description = "Creates a new page from the submitted data.",
+     * input = "Acme\BlogBundle\Form\PageType",
+     * statusCodes = {
+     * 200 = "Returned when successful",
+     * 400 = "Returned when the form has errors"
+     * }
+     * )
+     *
+     * @Annotations\View(
+     * template = "AcmeBlogBundle:Page:newPage.html.twig",
+     * statusCode = Codes::HTTP_BAD_REQUEST
+     * )
+     *
+     * @return FormTypeInterface|RouteRedirectView
+     */
+    public function postPageAction()
+    {
+        try {
+            $newPage = $this->container->get('acme_blog.page.handler')->post(
+                $this->container->get('request')->request->all()
+            );
+            $routeOptions = array(
+                'id' => $newPage->getId(),
+                '_format' => $this->container->get('request')->get('_format')
+            );
+            return $this->routeRedirectView('api_1_get_page', $routeOptions, Codes::HTTP_CREATED);
+        } catch (InvalidFormException $exception) {
+            return array('form' => $exception->getForm());
+        }
+    }
+    /**
+     * Fetch a Page or throw an 404 Exception.
      *
      * @param mixed $id
      *

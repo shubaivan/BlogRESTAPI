@@ -35,6 +35,6 @@ class PageType extends AbstractType
      */
     public function getName()
     {
-        return 'acme_blogbundle_page';
+        return 'page';
     }
 }
